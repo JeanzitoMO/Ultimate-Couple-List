@@ -17,4 +17,4 @@ Thumbs.db
 *.log
 *.zip
 .vercel
-.sql
+supabase/
