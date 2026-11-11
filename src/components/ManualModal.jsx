@@ -10,6 +10,7 @@ const schema = z.object({
   platform: z.string().trim().max(60, 'Plataforma muito longa'),
   total_seasons: z.coerce.number().int().min(0).max(100),
   total_episodes: z.coerce.number().int().min(0).max(10000),
+  runtime_minutes: z.coerce.number().int().min(0).max(1000),
 })
 
 export default function ManualModal({ onCreate, onClose }) {
@@ -27,6 +28,7 @@ export default function ManualModal({ onCreate, onClose }) {
       cover_url: f.cover_url || null, synopsis: null, platform: f.platform || null,
       total_seasons: movie ? null : f.total_seasons || null,
       total_episodes: movie ? null : f.total_episodes || null,
+      runtime_minutes: f.runtime_minutes || null,
     })
   }
 
@@ -61,6 +63,9 @@ export default function ManualModal({ onCreate, onClose }) {
             <input name="total_episodes" type="number" min="0" defaultValue="0" className={field} />
           </label>
         </div>
+        <label className="block text-sm">Duração em minutos (do filme ou de cada episódio, opcional)
+          <input name="runtime_minutes" type="number" min="0" defaultValue="0" className={field} />
+        </label>
         <p className="text-xs text-zinc-500">Temporadas e episódios são ignorados para filmes.</p>
         {error && <p className="text-sm text-red-400">{error}</p>}
         <button className="w-full rounded-md bg-indigo-600 py-2 text-sm font-medium hover:bg-indigo-500">Continuar</button>

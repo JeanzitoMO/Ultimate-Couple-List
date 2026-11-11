@@ -6,6 +6,9 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
 import ListsPanel from '../components/ListsPanel'
+import Stats from '../components/Stats'
+import HomePrefs from '../components/HomePrefs'
+import { useLists } from '../context/ListContext'
 
 const ALLOWED = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif' }
 const MAX_BYTES = 2 * 1024 * 1024
@@ -14,6 +17,8 @@ const nickSchema = z.string().trim().min(2, 'Apelido muito curto').max(30, 'Apel
 export default function Profile() {
   const { session, profile, refreshProfile } = useAuth()
   const qc = useQueryClient()
+  const { lists } = useLists()
+  const mineIds = lists.filter((l) => l.kind === 'shared' || l.owner_id === session.user.id).map((l) => l.id)
   const [nick, setNick] = useState(profile?.nickname ?? '')
   const [msg, setMsg] = useState(null)
   const [busy, setBusy] = useState(false)
@@ -92,6 +97,13 @@ export default function Profile() {
       </section>
 
       <ListsPanel />
+
+      <section className={card}>
+        <h2 className="mb-3 font-semibold">Minhas estatísticas</h2>
+        <Stats listIds={mineIds} show="all" />
+      </section>
+
+      <HomePrefs />
 
       <section className={card}>
         <h2 className="mb-3 font-semibold">Você e seus parceiros</h2>

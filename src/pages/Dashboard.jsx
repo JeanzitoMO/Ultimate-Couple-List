@@ -4,6 +4,8 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import RecentReleases from '../components/RecentReleases'
 import ListSwitcher from '../components/ListSwitcher'
+import Stats from '../components/Stats'
+import { usePrefs } from '../lib/prefs'
 import { useLists } from '../context/ListContext'
 
 const STATUS_COLOR = { watching: 'bg-blue-500', completed: 'bg-green-500', dropped: 'bg-red-500', want: 'bg-yellow-500' }
@@ -36,17 +38,6 @@ function useActivity(listId) {
   })
 }
 
-function useStats(listId) {
-  return useQuery({
-    queryKey: ['stats', listId], enabled: !!listId,
-    queryFn: async () => {
-      const count = (status) => supabase.from('list_entries').select('id', { count: 'exact', head: true }).eq('list_id', listId).eq('status', status)
-      const [done, watching] = await Promise.all([count('completed'), count('watching')])
-      return { completed: done.count ?? 0, watching: watching.count ?? 0 }
-    },
-  })
-}
-
 function Section({ title, children }) {
   return (
     <section className="mb-8">
@@ -59,24 +50,26 @@ function Section({ title, children }) {
 export default function Dashboard() {
   const { profile } = useAuth()
   const { active } = useLists()
+  const prefs = usePrefs()
+  const statIds = ['status', 'year', 'hours', 'episodes', 'monthly'].filter((id) => prefs[`stat_${id}`])
   const listId = active?.id
   const watching = useWatching(listId)
   const activity = useActivity(listId)
-  const stats = useStats(listId)
 
   return (
     <>
 
 
       <div className="grid gap-8 md:grid-cols-3">
-        <div className="md:col-span-2">
+        <div className={prefs.releases ? 'md:col-span-2' : 'md:col-span-3'}>
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">Olá, {profile?.nickname ?? 'bem-vindo'} 👋</h1>
         <ListSwitcher />
       </div>
 
-      <Section title="Últimos assistidos">
+      {prefs.watching && (
+<Section title="Últimos assistidos">
         {watching.data?.length ? (
           <div className="flex gap-3 overflow-x-auto pb-2">
             {watching.data.map((w) => (
@@ -93,7 +86,9 @@ export default function Dashboard() {
           </div>
         ) : <p className="text-sm text-zinc-500">Nada em andamento ainda.</p>}
       </Section>
-          <Section title="Atividade recente">
+)}
+          {prefs.activity && (
+<Section title="Atividade recente">
             <ul className="space-y-2 border-l border-zinc-800 pl-4">
               {activity.data?.map((a) => (
                 <li key={a.id} className="text-sm">
@@ -105,19 +100,21 @@ export default function Dashboard() {
               {activity.data?.length === 0 && <p className="text-zinc-500">Sem atividades.</p>}
             </ul>
           </Section>
-          <Section title="Estatísticas rápidas">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-lg bg-zinc-900 p-4"><CheckCircle2 className="text-green-500" /><p className="mt-2 text-2xl font-bold">{stats.data?.completed ?? '–'}</p><p className="text-xs text-zinc-500">Finalizados</p></div>
-              <div className="rounded-lg bg-zinc-900 p-4"><Eye className="text-blue-500" /><p className="mt-2 text-2xl font-bold">{stats.data?.watching ?? '–'}</p><p className="text-xs text-zinc-500">Assistindo</p></div>
-            </div>
+)}
+          {statIds.length > 0 && (
+<Section title="Estatísticas rápidas">
+            <Stats listIds={listId ? [listId] : []} show={statIds} />
           </Section>
+)}
         </div>
 
-        <aside>
+        {prefs.releases && (
+<aside>
           <Section title="Novidades no mundo">
             <RecentReleases />
           </Section>
         </aside>
+)}
       </div>
     </>
   )

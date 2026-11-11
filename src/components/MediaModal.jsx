@@ -38,6 +38,7 @@ export default function MediaModal({ item, listId, readOnly, onClose }) {
         source: info.source, external_id: info.external_id, title: info.title, type: info.type,
         cover_url: info.cover_url, synopsis: info.synopsis, platform: info.platform ?? null,
         total_seasons: info.total_seasons ?? null, total_episodes: info.total_episodes ?? null,
+        runtime_minutes: info.runtime_minutes ?? null,
       }
       const { error: e0 } = await supabase.from('media').upsert(row, { onConflict: 'source,external_id', ignoreDuplicates: true })
       if (e0) throw e0

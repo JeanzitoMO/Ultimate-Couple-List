@@ -78,6 +78,11 @@ export default function Catalog() {
           Não foi possível carregar suas listas{listsError ? `: ${listsError.message}` : ''}. Sem uma lista ativa não dá para salvar títulos.
         </p>
       )}
+      {!import.meta.env.VITE_TMDB_API_KEY && (
+        <p className="mb-4 rounded-md bg-yellow-950 p-3 text-sm text-yellow-300">
+          A chave do TMDB não está configurada neste site: filmes, séries e desenhos não aparecem na busca (animes continuam funcionando).
+        </p>
+      )}
       {!readOnly && <div className="relative mb-4">
         <Search size={16} className="absolute left-3 top-3 text-zinc-500" />
         <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Buscar filmes, séries, animes e desenhos…"

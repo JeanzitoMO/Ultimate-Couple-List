@@ -68,16 +68,17 @@ export async function getDetails(item) {
     ])
     return {
       total_seasons: d.number_of_seasons ?? null, total_episodes: d.number_of_episodes ?? null,
+      runtime_minutes: d.runtime ?? d.episode_run_time?.[0] ?? d.last_episode_to_air?.runtime ?? null,
       platform: p?.results?.BR?.flatrate?.[0]?.provider_name ?? d.networks?.[0]?.name ?? null,
     }
   }
   if (item.source === 'anilist') {
     const d = await anilist(
-      'query($id:Int){ Media(id:$id, type:ANIME){ episodes externalLinks { site type } } }',
+      'query($id:Int){ Media(id:$id, type:ANIME){ episodes duration externalLinks { site type } } }',
       { id: Number(item.external_id) },
     )
     const stream = d.Media.externalLinks?.find((l) => l.type === 'STREAMING')
-    return { total_seasons: 1, total_episodes: d.Media.episodes ?? null, platform: stream?.site ?? null }
+    return { total_seasons: 1, total_episodes: d.Media.episodes ?? null, runtime_minutes: d.Media.duration ?? null, platform: stream?.site ?? null }
   }
   const d = await getJson(`${JIKAN}/anime/${item.external_id}`)
   return { total_seasons: 1, total_episodes: d.data.episodes ?? null, platform: null }
