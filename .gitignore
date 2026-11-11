@@ -1,0 +1,19 @@
+# dependências e build
+node_modules
+dist
+
+# segredos: nunca versionar
+.env
+.env.*
+!.env.example
+
+# sistema e editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# logs e arquivos temporários
+*.log
+*.zip
+.vercel
