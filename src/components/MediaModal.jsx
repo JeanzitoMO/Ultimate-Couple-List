@@ -10,7 +10,7 @@ import { STATUS, TYPES } from "../lib/constants";
 const schema = z.object({
   status: z.enum(["want", "watching", "completed", "dropped"]),
   season: z.coerce.number().int().min(1).default(1),
-  episode: z.coerce.number().int().min(0).default(0),
+  episode: z.coerce.number().int().min(0).default(1),
   rating: z.number().min(0).max(5),
   review: z.string().max(500, "Review: máximo de 500 caracteres"),
 });
